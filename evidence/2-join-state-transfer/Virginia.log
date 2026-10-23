@@ -1,0 +1,32 @@
+[WAL] replaying 0 operation(s) from evidence/2-join-state-transfer/wal/Virginia.wal
+[WAL] map after replay: {}
+Oct 23, 2026 6:25:42 PM org.jgroups.JChannel setAddress
+INFO: local_addr: fc84fd57-5fa1-40f1-98ce-81c8fdd3e65f, name: Virginia
+Oct 23, 2026 6:25:42 PM org.jgroups.protocols.FD_SOCK2 start
+INFO: server listening on *:7900
+
+-------------------------------------------------------------------
+GMS: address=Virginia, cluster=ChatCluster, physical address=127.0.0.1:7800
+-------------------------------------------------------------------
+Oct 23, 2026 6:25:44 PM org.jgroups.protocols.pbcast.ClientGmsImpl joinInternal
+INFO: Virginia: no members discovered after 2021 ms: creating cluster as coordinator
+** view: [Virginia|0] (1) [Virginia]
+> ** view: [Virginia|1] (2) [Virginia, London]
+** joined: [London]
+[state-transfer] sent 0 chat line(s) and 0 operation(s)
+> Virginia: chat antes de que llegue Bogota
+> [store] Virginia stored a=1  (Virginia-51cbc0c6-2950-44d4-93b5-d4bde657c0ad)
+[store] London stored b=2  (London-7efd572d-0ac1-4d47-abe1-f6a161e491f4)
+> [store] Virginia stored c=3  (Virginia-397a713d-0237-4531-97f1-4e8ef6a35e5f)
+[store] London stored a=10  (London-e8b16e64-154c-4b6c-aaea-8de146d2eaa7)
+** view: [Virginia|2] (3) [Virginia, London, Bogota]
+** joined: [Bogota]
+[state-transfer] sent 1 chat line(s) and 4 operation(s)
+[store] Bogota stored d=4  (Bogota-e16e2e82-63fb-4638-9b4e-85de9d1c2aaf)
+[state] Virginia view=[Virginia|2] (3) [Virginia, London, Bogota]
+[state] 4 key(s), 5 operation(s) applied
+[state]   a = 10
+[state]   b = 2
+[state]   c = 3
+[state]   d = 4
+> 

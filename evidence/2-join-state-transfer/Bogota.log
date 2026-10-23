@@ -1,0 +1,30 @@
+[WAL] replaying 0 operation(s) from evidence/2-join-state-transfer/wal/Bogota.wal
+[WAL] map after replay: {}
+Oct 23, 2026 6:25:58 PM org.jgroups.JChannel setAddress
+INFO: local_addr: 03921f6c-08d1-4db4-b048-315b703392d6, name: Bogota
+Oct 23, 2026 6:25:58 PM org.jgroups.protocols.FD_SOCK2 start
+INFO: server listening on *:7902
+
+-------------------------------------------------------------------
+GMS: address=Bogota, cluster=ChatCluster, physical address=127.0.0.1:7802
+-------------------------------------------------------------------
+** view: [Virginia|2] (3) [Virginia, London, Bogota]
+[state-transfer] received 1 chat line(s), 4 operation(s), 4 were new for this node
+Virginia: chat antes de que llegue Bogota
+[state-transfer] map now: {a=10, b=2, c=3}
+> [state] Bogota view=[Virginia|2] (3) [Virginia, London, Bogota]
+[state] 3 key(s), 4 operation(s) applied
+[state]   a = 10
+[state]   b = 2
+[state]   c = 3
+> > [store] Bogota stored d=4  (Bogota-e16e2e82-63fb-4638-9b4e-85de9d1c2aaf)
+[state] Bogota view=[Virginia|2] (3) [Virginia, London, Bogota]
+[state] 4 key(s), 5 operation(s) applied
+[state]   a = 10
+[state]   b = 2
+[state]   c = 3
+[state]   d = 4
+> ** view: [London|3] (2) [London, Bogota]
+** left/crashed: [Virginia]
+** view: [Bogota|4] (1) [Bogota]
+** left/crashed: [London]

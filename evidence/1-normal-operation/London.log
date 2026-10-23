@@ -1,0 +1,29 @@
+[WAL] replaying 0 operation(s) from evidence/1-normal-operation/wal/London.wal
+[WAL] map after replay: {}
+Oct 23, 2026 6:25:11 PM org.jgroups.JChannel setAddress
+INFO: local_addr: efd15ba4-11e3-43be-863b-1e5797280b00, name: London
+Oct 23, 2026 6:25:11 PM org.jgroups.protocols.FD_SOCK2 start
+INFO: server listening on *:7901
+
+-------------------------------------------------------------------
+GMS: address=London, cluster=ChatCluster, physical address=127.0.0.1:7801
+-------------------------------------------------------------------
+** view: [Virginia|1] (2) [Virginia, London]
+[state-transfer] received 0 chat line(s), 0 operation(s), 0 were new for this node
+[state-transfer] map now: {}
+> ** view: [Virginia|2] (3) [Virginia, London, Bogota]
+** joined: [Bogota]
+Virginia: Hola desde Virginia
+> London: Hello from London
+Bogota: Saludos desde Bogota
+[store] Virginia stored color=azul  (Virginia-384a8752-3a2d-45ee-981f-1fbab61f825d)
+> [store] London stored ciudad=Londres  (London-38aa3be0-037e-4f93-b3a2-7b9f4a2623fd)
+[store] Bogota stored curso=AYGO  (Bogota-93856c7c-a3fe-44de-a34a-a9db3d213d66)
+> [store] London stored color=verde  (London-d51ff641-7fc8-4599-84fd-668282a6cf70)
+[state] London view=[Virginia|2] (3) [Virginia, London, Bogota]
+[state] 3 key(s), 4 operation(s) applied
+[state]   ciudad = Londres
+[state]   color = verde
+[state]   curso = AYGO
+> ** view: [London|3] (2) [London, Bogota]
+** left/crashed: [Virginia]

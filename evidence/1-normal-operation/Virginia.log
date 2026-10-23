@@ -1,0 +1,32 @@
+[WAL] replaying 0 operation(s) from evidence/1-normal-operation/wal/Virginia.wal
+[WAL] map after replay: {}
+Oct 23, 2026 6:25:07 PM org.jgroups.JChannel setAddress
+INFO: local_addr: f5f6bfe0-da81-472b-8696-b59f732384d1, name: Virginia
+Oct 23, 2026 6:25:07 PM org.jgroups.protocols.FD_SOCK2 start
+INFO: server listening on *:7900
+
+-------------------------------------------------------------------
+GMS: address=Virginia, cluster=ChatCluster, physical address=127.0.0.1:7800
+-------------------------------------------------------------------
+Oct 23, 2026 6:25:09 PM org.jgroups.protocols.pbcast.ClientGmsImpl joinInternal
+INFO: Virginia: no members discovered after 2008 ms: creating cluster as coordinator
+** view: [Virginia|0] (1) [Virginia]
+> ** view: [Virginia|1] (2) [Virginia, London]
+** joined: [London]
+[state-transfer] sent 0 chat line(s) and 0 operation(s)
+** view: [Virginia|2] (3) [Virginia, London, Bogota]
+** joined: [Bogota]
+[state-transfer] sent 0 chat line(s) and 0 operation(s)
+> Virginia: Hola desde Virginia
+London: Hello from London
+Bogota: Saludos desde Bogota
+> [store] Virginia stored color=azul  (Virginia-384a8752-3a2d-45ee-981f-1fbab61f825d)
+[store] London stored ciudad=Londres  (London-38aa3be0-037e-4f93-b3a2-7b9f4a2623fd)
+[store] Bogota stored curso=AYGO  (Bogota-93856c7c-a3fe-44de-a34a-a9db3d213d66)
+[store] London stored color=verde  (London-d51ff641-7fc8-4599-84fd-668282a6cf70)
+[state] Virginia view=[Virginia|2] (3) [Virginia, London, Bogota]
+[state] 3 key(s), 4 operation(s) applied
+[state]   ciudad = Londres
+[state]   color = verde
+[state]   curso = AYGO
+> 

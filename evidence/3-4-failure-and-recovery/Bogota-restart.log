@@ -1,0 +1,34 @@
+[WAL] replaying 3 operation(s) from evidence/3-4-failure-and-recovery/wal/Bogota.wal
+[WAL]   replay x=1  (Virginia-15e348a6-b28a-4ee8-beeb-b2583c0deebd)
+[WAL]   replay y=2  (London-5e970ae7-fe02-4265-9ca4-235bc7820162)
+[WAL]   replay z=3  (Bogota-f6910e78-cee0-4823-b255-5e2629f8e750)
+[WAL] map after replay: {x=1, y=2, z=3}
+Oct 23, 2026 6:26:52 PM org.jgroups.JChannel setAddress
+INFO: local_addr: fccbad36-896e-4125-9c79-848ced599cc2, name: Bogota
+Oct 23, 2026 6:26:52 PM org.jgroups.protocols.FD_SOCK2 start
+INFO: server listening on *:7902
+
+-------------------------------------------------------------------
+GMS: address=Bogota, cluster=ChatCluster, physical address=127.0.0.1:7802
+-------------------------------------------------------------------
+** view: [Virginia|4] (3) [Virginia, London, Bogota]
+[state-transfer] received 0 chat line(s), 5 operation(s), 2 were new for this node
+[state-transfer] map now: {w=4, x=100, y=2, z=3}
+> [state] Bogota view=[Virginia|4] (3) [Virginia, London, Bogota]
+[state] 4 key(s), 5 operation(s) applied
+[state]   w = 4
+[state]   x = 100
+[state]   y = 2
+[state]   z = 3
+> > [store] Bogota stored v=5  (Bogota-27fc9bbd-7e59-4c1c-9e0a-fde96c2af527)
+[state] Bogota view=[Virginia|4] (3) [Virginia, London, Bogota]
+[state] 5 key(s), 6 operation(s) applied
+[state]   v = 5
+[state]   w = 4
+[state]   x = 100
+[state]   y = 2
+[state]   z = 3
+> ** view: [London|5] (2) [London, Bogota]
+** left/crashed: [Virginia]
+** view: [Bogota|6] (1) [Bogota]
+** left/crashed: [London]

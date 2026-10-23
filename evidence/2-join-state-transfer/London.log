@@ -1,0 +1,29 @@
+[WAL] replaying 0 operation(s) from evidence/2-join-state-transfer/wal/London.wal
+[WAL] map after replay: {}
+Oct 23, 2026 6:25:46 PM org.jgroups.JChannel setAddress
+INFO: local_addr: c430fe5a-2fa4-4d00-b024-ff447a0ddc88, name: London
+Oct 23, 2026 6:25:46 PM org.jgroups.protocols.FD_SOCK2 start
+INFO: server listening on *:7901
+
+-------------------------------------------------------------------
+GMS: address=London, cluster=ChatCluster, physical address=127.0.0.1:7801
+-------------------------------------------------------------------
+** view: [Virginia|1] (2) [Virginia, London]
+[state-transfer] received 0 chat line(s), 0 operation(s), 0 were new for this node
+[state-transfer] map now: {}
+> Virginia: chat antes de que llegue Bogota
+[store] Virginia stored a=1  (Virginia-51cbc0c6-2950-44d4-93b5-d4bde657c0ad)
+> [store] London stored b=2  (London-7efd572d-0ac1-4d47-abe1-f6a161e491f4)
+[store] Virginia stored c=3  (Virginia-397a713d-0237-4531-97f1-4e8ef6a35e5f)
+> [store] London stored a=10  (London-e8b16e64-154c-4b6c-aaea-8de146d2eaa7)
+** view: [Virginia|2] (3) [Virginia, London, Bogota]
+** joined: [Bogota]
+[store] Bogota stored d=4  (Bogota-e16e2e82-63fb-4638-9b4e-85de9d1c2aaf)
+[state] London view=[Virginia|2] (3) [Virginia, London, Bogota]
+[state] 4 key(s), 5 operation(s) applied
+[state]   a = 10
+[state]   b = 2
+[state]   c = 3
+[state]   d = 4
+> ** view: [London|3] (2) [London, Bogota]
+** left/crashed: [Virginia]
