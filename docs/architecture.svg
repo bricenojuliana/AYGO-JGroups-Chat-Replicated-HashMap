@@ -17,6 +17,7 @@
       .st   { stroke:#2e7d32; stroke-width:2.5; fill:none; stroke-dasharray:7 5; }
     </style>
   </defs>
+  <rect x="0" y="0" width="960" height="600" fill="#ffffff"/>
 
   <text x="480" y="30" text-anchor="middle" class="title" font-size="20">JGroups replicated chat + key-value store</text>
 
