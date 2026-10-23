@@ -1,0 +1,34 @@
+<!--
+    TCP stack for running several nodes on one machine (localhost).
+    Based on JGroups' conf/tcp.xml with two changes:
+      * TCPPING lists localhost ports 7800..7809 so nodes find each other without IP multicast.
+      * SEQUENCER gives total order: every node delivers group messages in the same order,
+        so concurrent /store operations on the same key end with the same value everywhere.
+    Each node binds the first free port starting at 7800 (port_range).
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="urn:org:jgroups"
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd">
+    <TCP bind_addr="${jgroups.bind_addr:127.0.0.1}"
+         bind_port="${jgroups.bind_port:7800}"
+         port_range="10"
+         thread_pool.min_threads="0"
+         thread_pool.max_threads="50"
+         thread_pool.keep_alive_time="30000"/>
+    <TCPPING initial_hosts="${jgroups.tcpping.initial_hosts:127.0.0.1[7800]}"
+             port_range="9"/>
+    <MERGE3 min_interval="10s" max_interval="30s"/>
+    <FD_SOCK2/>
+    <FD_ALL3 timeout="12s" interval="3s"/>
+    <VERIFY_SUSPECT2 timeout="1.5s"/>
+    <BARRIER/>
+    <pbcast.NAKACK2 use_mcast_xmit="false"/>
+    <UNICAST3/>
+    <pbcast.STABLE desired_avg_gossip="50s" max_bytes="4M"/>
+    <pbcast.GMS print_local_addr="true" join_timeout="2s"/>
+    <SEQUENCER/>
+    <MFC max_credits="10M" min_threshold="0.4"/>
+    <UFC max_credits="10M" min_threshold="0.4"/>
+    <FRAG2 frag_size="60K"/>
+    <pbcast.STATE_TRANSFER/>
+</config>

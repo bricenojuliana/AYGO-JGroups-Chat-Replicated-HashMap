@@ -22,3 +22,16 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Maven build output
+target/
+
+# WAL files written when running nodes locally (the experiment evidence keeps its logs and WALs)
+*.wal
+!evidence/**/*.wal
+!evidence/**/*.log
+
+# IDE files
+.idea/
+*.iml
+.vscode/
