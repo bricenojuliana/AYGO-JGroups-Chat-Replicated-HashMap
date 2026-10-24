@@ -340,47 +340,59 @@ snapshot fills only the gap since its crash, because the ids already in its WAL 
 
 ## AI-assisted development
 
-This project was developed with an AI coding assistant (Claude), following the workshop guidance of
-small, focused requests.
+I used an AI coding assistant (Claude) during the workshop, as the assignment encourages. Before
+using it, I followed the JGroups tutorial by hand, typing each command, and ran the original chat
+with several nodes to see how views, messages and state transfer behave.
 
-**What was created or assisted by AI**
-- `StoreCommand` (serializable record with id/key/value) and `WriteAheadLog` (append + fsync,
-  replay, escaping).
-- The changes to the tutorial's `SimpleChat`: `/store` and `/state` parsing, `apply()` with the
-  WAL-first rule and id-based deduplication, WAL replay at startup, the extended
-  `getState`/`setState`, and the view-change output (joined / left-or-crashed).
-- `tcp-local.xml`, `run-experiments.sh`, this README and the architecture diagram.
+**What the assistant generated.** I asked for the extension in small, focused steps rather than in
+one request for the whole workshop. The assistant generated `StoreCommand`, `WriteAheadLog` and the
+changes to the tutorial's `SimpleChat` (the `/store` and `/state` commands, `apply()` with the
+WAL-first rule and id-based deduplication, the WAL replay at startup, the extended
+`getState`/`setState` and the view-change output), as well as `tcp-local.xml`,
+`run-experiments.sh`, the unit tests, the architecture diagram and the first draft of this README.
+Using TCP + TCPPING instead of the tutorial's UDP multicast, and adding SEQUENCER for total order,
+were the assistant's decisions, which I kept: multicast often does not work on a laptop or Wi-Fi,
+and without total order two concurrent `/store` on the same key could leave replicas with different
+values.
 
-**Type of requests made**
-- "Add `/store <key> <value>` and `/state` to the JGroups tutorial chat, keep the chat working."
-- "Design a small serializable StoreCommand with a unique id."
-- "Implement an append-only WAL with one text line per operation and fsync before applying."
-- "Replay the WAL at startup before connecting to the cluster."
-- "Extend getState/setState so a joining node receives the map and only applies missing operations."
-- "Explain JGroups state transfer and membership views; print clearer view-change messages."
-- "Write a script that runs the four experiments and saves logs as evidence."
+**Type of requests made.** The requests followed the steps of the assignment, for example: *"Add
+`/store <key> <value>` and `/state` to the JGroups tutorial chat, keep the chat working"*, *"Design a
+small serializable StoreCommand with a unique id"*, *"Implement an append-only WAL with one text
+line per operation and fsync before applying"*, *"Replay the WAL at startup before connecting to the
+cluster"*, *"Extend getState/setState so a joining node only applies missing operations"* and
+*"Explain JGroups state transfer and membership views"*. Once the code was working I asked for a
+review and a test pass of the whole project, asked whether the code followed good practices, asked
+to be able to run the nodes with `mvn exec`, and asked to add the screenshots to this README with
+an explanation of each one.
 
-**What was reviewed, changed or simplified afterward**
-- Kept everything in three small classes and plain Java I/O; no extra libraries beyond JGroups.
-- The node no longer applies its own `/store` locally before sending: it waits for its own message
-  to come back, so all nodes use one code path.
-- State transfer sends the ordered list of operations instead of the raw map, so a recovered node
-  applies only what it missed and its WAL stays complete (every map change still goes through the
-  WAL).
-- Switched from UDP multicast to TCP + TCPPING on localhost, and added SEQUENCER after noticing that
-  concurrent updates to the same key could otherwise be applied in different orders.
-- Removed the redundant `[Node]` prefix from chat messages (JGroups already shows the sender).
-- Verified the behaviour by running the four experiments and reading the logs and WAL files.
-- Added JUnit tests for `WriteAheadLog` (the only test-scoped dependency) and turned
-  `StoreCommand` into a Java `record`.
-- A later AI review found that a torn last WAL line (crash during `append`) was replayed with a
-  truncated value and the next record was appended to the same line. `WriteAheadLog` now cuts the
-  torn tail off when it opens the file. The same review tightened `/store` parsing (`/storex` is now
-  a chat message) and tested 90 concurrent `/store` operations on one key from three nodes: all
-  three WAL files ended byte-for-byte identical thanks to SEQUENCER.
+**What was reviewed, changed or simplified.** The design was kept to three small classes and plain
+Java I/O, with no libraries beyond JGroups (JUnit is only used for tests). A node does not apply its
+own `/store` before sending it; it waits for its own message to come back, so every node follows the
+same code path. State transfer sends the ordered list of operations instead of the raw map, so a
+recovered node applies only what it missed and its WAL stays complete. The review I requested found
+a real bug: a WAL line torn by a crash during `append` was replayed with a truncated value, and the
+next record was written on the same line. `WriteAheadLog` now cuts that torn tail off when it opens
+the file, and a unit test covers it. The same review tightened the `/store` parsing and checked that
+90 concurrent `/store` operations on one key from three nodes left the three WAL files byte-for-byte
+identical. When I asked about good practices I chose to add JUnit tests for `WriteAheadLog` and to
+turn `StoreCommand` into a Java `record`; the other points (Java serialization, no log compaction,
+console output instead of a logger) stayed as documented trade-offs for a workshop.
 
-**Why the design stays simple enough for the workshop**
-One process per node, one text file per WAL, one lock, Java serialization for messages and state,
+**My part in testing it.** I ran the four experiments by hand in three terminals and took the
+screenshots shown above. In my first attempt I started all three nodes with the same name, noticed
+it in the view `[Virginia, Virginia, Virginia]` and restarted them with distinct names, since each
+node must have its own WAL file. I also noticed that the architecture diagram was hard to read on
+GitHub's dark theme and asked for a white background, and I organised the Git history into one
+commit per logical step.
+
+**My understanding of the code.** I can explain the design: why the WAL is written before the map,
+how operation ids let WAL replay and state transfer be combined without applying anything twice,
+how SEQUENCER keeps every replica in the same order, and what the four experiments show. I had not
+used Java for a while, so I relied on the assistant for Java-specific details (records,
+`FileChannel` and `fsync`, Java serialization) and checked them by running the tests and the
+experiments.
+
+**Why the design stays simple enough for the workshop.** One process per node, one text file per WAL, one lock, Java serialization for messages and state,
 and JGroups' own protocols for discovery, failure detection, ordering and state transfer. There is
 no consensus protocol, no log compaction and no persistence framework — those are the natural next
 steps, and the discussion section explains where their absence shows.
