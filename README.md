@@ -18,6 +18,7 @@ src/test/java/workshop/
 run-experiments.sh       # runs the 4 required experiments unattended, writes evidence/
 evidence/                # console logs and WAL files from the 4 experiments
 docs/architecture.svg    # architecture diagram
+docs/screenshots/        # screenshots of the four experiments
 ```
 
 ## Build and run
@@ -156,8 +157,13 @@ are handled by JGroups' STATE_TRANSFER/BARRIER, and any overlap is removed by th
 
 ## Experiments (evidence in `evidence/`)
 
-The logs below are excerpts of the real runs produced by `run-experiments.sh` (full logs and WAL
-files are in the `evidence/` folder; JGroups INFO lines omitted here).
+Each experiment has two kinds of evidence:
+
+- **Log excerpts** from the unattended runs of `run-experiments.sh` (full logs and WAL files are in
+  the `evidence/` folder; JGroups INFO lines omitted here).
+- **Screenshots** of a manual run with three terminals side by side (`docs/screenshots/`). In every
+  screenshot **Virginia is top-left, London is bottom-left and Bogota is on the right**; the WAL
+  files of that run were written to a `demo/` folder (`-Dwal.dir=demo`).
 
 ### 1. Normal operation — `evidence/1-normal-operation/`
 
@@ -180,6 +186,20 @@ Bogota: Saludos desde Bogota
 
 The same `/state` output appears in `Virginia.log`, `London.log` and `Bogota.log`.
 
+**Screenshot** — manual run:
+
+![Experiment 1: normal operation with three nodes](docs/screenshots/1-normal.webp)
+
+- All three nodes are in the same view `[Virginia|2] (3) [Virginia, London, Bogota]`; Virginia,
+  the first one started, is the coordinator.
+- Each node sends a chat message and every node prints all three (`Virginia: ...`,
+  `London: ...`, `Bogota: ...`), so the original chat still works.
+- `/store color azul` (Virginia), `/store curso AYGO` (London) and `/store color verde` (Bogota)
+  appear as `[store] ... stored ...` lines in the **same order on all three nodes**, each with its
+  unique operation id (`<node>-<uuid>`).
+- `/state` gives the same result everywhere: `2 key(s), 3 operation(s) applied`,
+  `color = verde`, `curso = AYGO` — Bogota's later update overwrote `color` on every replica.
+
 ### 2. Node join and state transfer — `evidence/2-join-state-transfer/`
 
 Virginia and London store `a=1, b=2, c=3, a=10`; then Bogota starts:
@@ -198,6 +218,20 @@ Virginia and London store `a=1, b=2, c=3, a=10`; then Bogota starts:
 [state]   a = 10 / b = 2 / c = 3 / d = 4   (same on all three nodes)
 ```
 
+**Screenshot** — manual run:
+
+![Experiment 2: late join and state transfer](docs/screenshots/2-join.webp)
+
+- Only Virginia and London are running at first: a chat message `hola` and the operations
+  `a=1`, `b=2`, `a=10` are applied on both.
+- Bogota (right) starts afterwards: `[WAL] replaying 0 operation(s)` shows it starts empty.
+  Virginia prints `** joined: [Bogota]` and `[state-transfer] sent 1 chat line(s) and 3
+  operation(s)`; Bogota prints `received 1 chat line(s), 3 operation(s), 3 were new for this
+  node`, shows the chat history (`Virginia: hola`) and `map now: {a=10, b=2}`.
+- Bogota then runs `/store d 4`; the operation reaches Virginia and London too, so the new node
+  takes part in later updates.
+- `/state` on the three nodes: `3 key(s), 4 operation(s) applied`, `a = 10`, `b = 2`, `d = 4`.
+
 ### 3. Node failure — `evidence/3-4-failure-and-recovery/`
 
 Bogota is killed with `kill -9` after storing `x=1, y=2, z=3`. Survivors:
@@ -209,6 +243,20 @@ Bogota is killed with `kill -9` after storing `x=1, y=2, z=3`. Survivors:
 [store] London stored w=4
 [state]   w = 4 / x = 100 / y = 2 / z = 3
 ```
+
+**Screenshot** — manual run:
+
+![Experiment 3: node failure](docs/screenshots/3-failure.webp)
+
+- With the three nodes up, `x=1` (Virginia), `y=2` (London) and `z=3` (Bogota) are stored on
+  all of them.
+- Bogota (right) is stopped with **Ctrl+C** (`^C` and the shell prompt): the process dies without
+  leaving the group, like a crash.
+- Virginia and London detect it and install a new view: `** view: [Virginia|3] (2) [Virginia,
+  London]` and `** left/crashed: [Bogota]`.
+- The two survivors keep working: `/store x 100` (Virginia) and `/store w 4` (London) are
+  replicated between them, and `/state` shows `4 key(s), 5 operation(s) applied`, `w = 4`,
+  `x = 100`, `y = 2`, `z = 3` on both.
 
 ### 4. Recovery from the WAL — `evidence/3-4-failure-and-recovery/Bogota-restart.log`
 
@@ -227,6 +275,23 @@ Bogota is killed with `kill -9` after storing `x=1, y=2, z=3`. Survivors:
 
 Only the 2 operations Bogota missed while down were applied (and appended to its WAL); the 3 it
 already had were recognised by id and skipped. `wal/Bogota.wal` ends with all 6 operations.
+
+**Screenshot** — manual run, continuing experiment 3 (same WAL files):
+
+![Experiment 4: recovery from the WAL](docs/screenshots/4-recovery.webp)
+
+- Bogota (right) is started again with the same name, so it opens the same `demo/Bogota.wal`.
+- **WAL replay before joining**: `[WAL] replaying 3 operation(s)` with `x=1`, `y=2`, `z=3`, and
+  `map after replay: {x=1, y=2, z=3}` — the data Bogota had stored before the crash, recovered
+  from its own disk. At this point `x` is still the old value `1`.
+- **Rejoin**: the view on all nodes becomes `[Virginia|4] (3) [Virginia, London, Bogota]` and
+  the others print `** joined: [Bogota]`.
+- **State transfer**: Virginia `sent 0 chat line(s) and 5 operation(s)`; Bogota `received ...
+  5 operation(s), 2 were new for this node` — the 3 operations already in its WAL are skipped by
+  id and only `x=100` and `w=4` (missed while it was down) are applied. Result:
+  `map now: {w=4, x=100, y=2, z=3}`.
+- `/state` is identical on the three nodes: `4 key(s), 5 operation(s) applied`, `w = 4`,
+  `x = 100`, `y = 2`, `z = 3`.
 
 ### Running the experiments by hand
 
